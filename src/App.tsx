@@ -346,25 +346,29 @@ const AppContent = () => {
               <div className="privacy-highlight">
                 <strong>{t.privacyPolicyLocal}</strong>
               </div>
+              <h3>Server-Log-Files</h3>
               <p>{t.privacyPolicyServer}</p>
+              <h3>Google AdSense</h3>
+              <p>{t.privacyPolicyAdSense}</p>
+              <h3>Cloudflare</h3>
+              <p>{t.privacyPolicyCloudflare}</p>
               <p>{t.privacyStatement}</p>
             </section>
           </div>
         } />
         
-        <Route path="/terms" element={
+        <Route path="/impressum" element={
           <div className="content-page">
             <Link to={`/${currentLang}`} className="back-btn">← {t.back}</Link>
             <section className="legal-section">
-              <h1>{t.termsOfService}</h1>
-              <p>{t.termsContent}</p>
-              <hr className="my-8" />
-              <h2>{t.impressumTitle}</h2>
+              <h1>{t.impressumTitle}</h1>
               <p>{t.impressumContent}</p>
               <p>
                 <strong>{t.impressumOwner}</strong><br />
                 {t.impressumAddress}
               </p>
+              <p>{t.impressumContact}</p>
+              <hr className="my-8" />
               <h3>{t.impressumDisclaimerTitle}</h3>
               <p>{t.impressumDisclaimer}</p>
             </section>
@@ -376,6 +380,7 @@ const AppContent = () => {
             <Link to={`/${currentLang}`} className="back-btn">← {t.back}</Link>
             <section className="contact-section">
               <h1>{t.contactUs}</h1>
+              <p className="contact-intro">{t.contactIntro}</p>
               <div className="contact-grid">
                 <div className="contact-info">
                   <div className="contact-method">
@@ -436,7 +441,7 @@ const AppContent = () => {
             <h4>{t.contactUs}</h4>
             <div className="footer-column-links">
               <Link to={`/${currentLang}/privacy`}>{t.privacyPolicy}</Link>
-              <Link to={`/${currentLang}/terms`}>{t.termsOfService}</Link>
+              <Link to={`/${currentLang}/impressum`}>{t.impressum}</Link>
               <Link to={`/${currentLang}/contact`}>{t.contactUs}</Link>
             </div>
           </div>
