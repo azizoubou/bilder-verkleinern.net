@@ -143,43 +143,75 @@ const AppContent = () => {
             </header>
 
             <main className="app-main">
-              {results.length === 0 ? (
+              {(results.length === 0 || isCompressing) ? (
                 <div className="compression-workflow">
-                  <DropZone 
-                    onFilesSelect={handleFilesSelect} 
-                    translations={{
-                      title: t.dropZoneTitle,
-                      sub: t.dropZoneSub,
-                      hint: t.dropZoneHint
-                    }}
-                  />
-                  
-                  {selectedFiles.length > 0 && (
-                    <div className="selected-file-info">
-                      <span>{t.selected}: <strong>{selectedFiles.length} {selectedFiles.length === 1 ? 'Bild' : 'Bilder'}</strong></span>
-                      <button onClick={() => setSelectedFiles([])}>{t.change}</button>
+                  {isCompressing ? (
+                    <div className="progress-container" style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '1rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                      <div className="spinner" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid #6366f1', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+                      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                      <h3>{t.compressingBtn}</h3>
+                      <p style={{ color: '#64748b' }}>{progress.current} / {progress.total} Bilder verarbeitet</p>
+                      <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', marginTop: '1rem', overflow: 'hidden' }}>
+                        <div style={{ width: `${(progress.current / progress.total) * 100}%`, height: '100%', background: '#6366f1', transition: 'width 0.3s ease' }}></div>
+                      </div>
                     </div>
-                  )}
+                  ) : (
+                    <>
+                      <DropZone 
+                        onFilesSelect={handleFilesSelect} 
+                        translations={{
+                          title: t.dropZoneTitle,
+                          sub: t.dropZoneSub,
+                          hint: t.dropZoneHint
+                        }}
+                      />
+                      
+                      {selectedFiles.length > 0 && (
+                        <div className="selected-file-info">
+                          <span>{t.selected}: <strong>{selectedFiles.length} {selectedFiles.length === 1 ? 'Bild' : 'Bilder'}</strong></span>
+                          <button onClick={() => setSelectedFiles([])}>{t.change}</button>
+                        </div>
+                      )}
 
-                  <ControlPanel 
-                    settings={settings}
-                    setSettings={setSettings}
-                    onCompress={handleCompress}
-                    isCompressing={isCompressing}
-                    disabled={selectedFiles.length === 0}
-                    translations={{
-                      title: t.settingsTitle,
-                      maxSize: t.maxFileSize,
-                      maxWidth: t.maxWidthHeight,
-                      compress: t.compressBtn,
-                      compressing: t.compressingBtn,
-                      forumMode: t.forumMode,
-                      forumModeDesc: t.forumModeDesc
-                    }}
-                  />
+                      <ControlPanel 
+                        settings={settings}
+                        setSettings={setSettings}
+                        onCompress={handleCompress}
+                        isCompressing={isCompressing}
+                        disabled={selectedFiles.length === 0}
+                        translations={{
+                          title: t.settingsTitle,
+                          maxSize: t.maxFileSize,
+                          maxWidth: t.maxWidthHeight,
+                          compress: t.compressBtn,
+                          compressing: t.compressingBtn,
+                          forumMode: t.forumMode,
+                          forumModeDesc: t.forumModeDesc
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="result-workflow">
+                  <div className="bulk-actions" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center' }}>
+                    <button 
+                      className="download-all-btn" 
+                      onClick={handleDownloadAll}
+                      style={{ background: '#6366f1', color: 'white', border: 'none', padding: '0.8rem 1.5rem', borderRadius: '0.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                    >
+                      <Download size={20} />
+                      Alle herunterladen ({results.length})
+                    </button>
+                    <button 
+                      className="start-over-btn" 
+                      onClick={handleStartOver}
+                      style={{ background: 'white', color: '#64748b', border: '1px solid #e2e8f0', padding: '0.8rem 1.5rem', borderRadius: '0.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                    >
+                      <Repeat size={18} />
+                      {t.compressAnother}
+                    </button>
+                  </div>
                   <div className="results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
                     {results.map((res, idx) => (
                       <div key={idx} className="result-card" style={{ background: 'white', padding: '1.5rem', borderRadius: '1rem', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
@@ -194,12 +226,6 @@ const AppContent = () => {
                         />
                       </div>
                     ))}
-                  </div>
-                  <div className="result-actions">
-                    <button className="start-over-btn" onClick={handleStartOver}>
-                      <Repeat size={18} />
-                      {t.compressAnother}
-                    </button>
                   </div>
                 </div>
               )}

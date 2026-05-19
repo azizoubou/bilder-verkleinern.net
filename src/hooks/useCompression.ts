@@ -21,21 +21,20 @@ export interface CompressionResult {
 export const useCompression = () => {
   const [isCompressing, setIsCompressing] = useState(false);
   const [results, setResults] = useState<CompressionResult[]>([]);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
 
   const compressImage = async (file: File, settings: CompressionSettings) => {
-    // Keep internal for single file logic but we'll use a new batch function
     try {
       let compressedBlob: Blob;
-
       if (settings.forumMode) {
         const targetSize = 10 * 1024;
         let quality = 0.8;
         let scale = 1.0;
-        let currentBlob: Blob = file;
         const img = await imageCompression.drawFileInCanvas(file);
         const [canvas] = img;
 
+        let currentBlob: Blob = file;
         while (true) {
           const tempCanvas = document.createElement('canvas');
           const ctx = tempCanvas.getContext('2d')!;
@@ -78,19 +77,20 @@ export const useCompression = () => {
   const compressImages = async (files: File[], settings: CompressionSettings) => {
     setIsCompressing(true);
     setError(null);
-    const newResults: CompressionResult[] = [];
+    setResults([]);
+    setProgress({ current: 0, total: files.length });
     
-    try {
-      for (const file of files) {
-        const res = await compressImage(file, settings);
-        newResults.push(res);
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const res = await compressImage(files[i], settings);
+        setResults(prev => [...prev, res]);
+        setProgress(prev => ({ ...prev, current: i + 1 }));
+      } catch (err) {
+        console.error(`Error compressing ${files[i].name}:`, err);
+        setError('errorCompression');
       }
-      setResults(newResults);
-    } catch (err) {
-      setError('errorCompression');
-    } finally {
-      setIsCompressing(false);
     }
+    setIsCompressing(false);
   };
 
   const reset = () => {
@@ -99,8 +99,9 @@ export const useCompression = () => {
       URL.revokeObjectURL(res.compressedUrl);
     });
     setResults([]);
+    setProgress({ current: 0, total: 0 });
     setError(null);
   };
 
-  return { compressImages, isCompressing, results, error, reset };
+  return { compressImages, isCompressing, results, progress, error, reset };
 };
