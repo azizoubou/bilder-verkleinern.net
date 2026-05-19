@@ -3,7 +3,7 @@ import { Upload, Image as ImageIcon } from 'lucide-react';
 import './DropZone.css';
 
 interface DropZoneProps {
-  onFileSelect: (file: File) => void;
+  onFilesSelect: (files: File[]) => void;
   translations: {
     title: string;
     sub: string;
@@ -11,7 +11,7 @@ interface DropZoneProps {
   };
 }
 
-const DropZone: React.FC<DropZoneProps> = ({ onFileSelect, translations }) => {
+const DropZone: React.FC<DropZoneProps> = ({ onFilesSelect, translations }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -29,16 +29,16 @@ const DropZone: React.FC<DropZoneProps> = ({ onFileSelect, translations }) => {
     setIsDragging(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) {
-        onFileSelect(file);
+      const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+      if (files.length > 0) {
+        onFilesSelect(files);
       }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      onFileSelect(e.target.files[0]);
+      onFilesSelect(Array.from(e.target.files));
     }
   };
 
@@ -55,6 +55,7 @@ const DropZone: React.FC<DropZoneProps> = ({ onFileSelect, translations }) => {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/*"
+        multiple
         style={{ display: 'none' }}
       />
       <div className="drop-zone-content">
